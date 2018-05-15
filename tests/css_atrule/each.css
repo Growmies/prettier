@@ -215,3 +215,9 @@ h3
 {
 
 }
+@each $label, $map in $breakpoint-map {
+    $min-width: map-get($map, min-width);
+    $max-width: map-get($map, max-width);
+    $base-font: map-get($map, base-font);
+    $vertical-rhythm: map-get($map, vertical-rhythm);
+}

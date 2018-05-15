@@ -98,6 +98,37 @@ function insideAtRuleNode(path, atRuleName) {
   );
 }
 
+function insideURLFunctionInImportAtRuleNode(path) {
+  const node = path.getValue();
+  const atRuleAncestorNode = getAncestorNode(path, "css-atrule");
+
+  return (
+    atRuleAncestorNode &&
+    atRuleAncestorNode.name === "import" &&
+    node.groups[0].value === "url" &&
+    node.groups.length === 2
+  );
+}
+
+function insideInSCSSMapNode(path) {
+  const declAncestorNode = getAncestorNode(path, "css-decl");
+
+  return declAncestorNode && isSCSSMapNode(declAncestorNode);
+}
+
+function insideInNestedSCSSMapNode(path) {
+  const node = path.getValue();
+  const parentNode = path.getParentNode();
+
+  if (parentNode.type !== "value-paren_group") {
+    return false;
+  }
+
+  return (
+    node.groups && node.groups[2] && node.groups[2].type === "value-paren_group"
+  );
+}
+
 function isURLFunctionNode(node) {
   return node.type === "value-func" && node.value.toLowerCase() === "url";
 }
@@ -177,7 +208,18 @@ function isSCSSControlDirectiveNode(node) {
 }
 
 function isSCSSMapNode(node) {
-  return node.type === "css-decl" && node.prop && node.prop.startsWith("$");
+  return (
+    node.type === "css-decl" &&
+    node.prop &&
+    node.prop.startsWith("$") &&
+    node.value &&
+    node.value.group &&
+    node.value.group.group &&
+    node.value.group.group.type === "value-paren_group" &&
+    node.value.group.group.groups &&
+    node.value.group.group.groups[0] &&
+    node.value.group.group.groups[0].type === "value-comma_group"
+  );
 }
 
 function isSCSSNestedPropertyNode(node) {
@@ -194,6 +236,16 @@ function isSCSSNestedPropertyNode(node) {
 
 function isDetachedRulesetCallNode(node) {
   return node.raws && node.raws.params && /^\(\s*\)$/.test(node.raws.params);
+}
+
+function isPostcssSimpleVarNode(currentNode, nextNode) {
+  return (
+    currentNode.value === "$$" &&
+    currentNode.type === "value-func" &&
+    nextNode &&
+    nextNode.type === "value-word" &&
+    !nextNode.raws.before
+  );
 }
 
 function hasLessExtendValueNode(node) {
@@ -229,15 +281,6 @@ function hasParensAroundValueNode(node) {
   );
 }
 
-function isPostcssSimpleVarNode(currentNode, nextNode) {
-  return (
-    currentNode.value === "$$" &&
-    currentNode.type === "value-func" &&
-    nextNode &&
-    nextNode.type === "value-word" &&
-    !nextNode.raws.before
-  );
-}
 module.exports = {
   getAncestorCounter,
   getAncestorNode,
@@ -246,6 +289,9 @@ module.exports = {
   insideValueFunctionNode,
   insideICSSRuleNode,
   insideAtRuleNode,
+  insideURLFunctionInImportAtRuleNode,
+  insideInSCSSMapNode,
+  insideInNestedSCSSMapNode,
   isKeyframeAtRuleKeywords,
   isHTMLTag,
   isWideKeywords,

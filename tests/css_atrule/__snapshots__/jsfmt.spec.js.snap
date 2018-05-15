@@ -1095,6 +1095,12 @@ h3
 {
 
 }
+@each $label, $map in $breakpoint-map {
+    $min-width: map-get($map, min-width);
+    $max-width: map-get($map, max-width);
+    $base-font: map-get($map, base-font);
+    $vertical-rhythm: map-get($map, vertical-rhythm);
+}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @each $animal in puma, sea-slug, egret, salamander {
 }
@@ -1161,6 +1167,12 @@ h3
 @each $element, $size in (h1: 20px, h2: 16px, h3: 14px) {
 }
 @each $element, $size in (h1: 20px, h2: 16px, h3: 14px) {
+}
+@each $label, $map in $breakpoint-map {
+  $min-width: map-get($map, min-width);
+  $max-width: map-get($map, max-width);
+  $base-font: map-get($map, base-font);
+  $vertical-rhythm: map-get($map, vertical-rhythm);
 }
 
 `;
